@@ -43,15 +43,18 @@ Nebula::Nebula()
     radar_visual = irandom(1, 3);
     setRadarSignatureInfo(0.0, 0.8, -1.0);
 
-    setSize(5000);
+    size = 5000;
 
     registerMemberReplication(&radar_visual);
 
     nebula_list.push_back(this);
+
+    setSize(getRadius());
 }
 
 void Nebula::draw3DTransparent()
 {
+    checkSizeMatchesRadius();
     ShaderRegistry::ScopedShader shader(ShaderRegistry::Shaders::Billboard);
 
     std::array<VertexAndTexCoords, 4> quad{
@@ -110,6 +113,9 @@ void Nebula::setSize(float size)
 }
 
 void Nebula::drawOnRadar(sp::RenderTarget& renderer, glm::vec2 position, float scale, float rotation, bool long_range)
+{
+    checkSizeMatchesRadius();
+
 {
     checkSizeMatchesRadius();
 
