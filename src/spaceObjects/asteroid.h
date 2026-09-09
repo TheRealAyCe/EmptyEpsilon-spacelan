@@ -15,8 +15,8 @@ public:
     virtual ~AbstractAsteroid() = default;
 
     virtual void draw3D() override;
-    virtual void setSize(float size) override;
     virtual float getReasonableMaxValue() override { return 1000; }
+    virtual void setSize(float size) override;
 
     virtual string getExportLineStart() = 0;
     virtual string getExportLine() override { return getExportLineStart() + ":setPosition(" + string(getPosition().x, 0) + ", " + string(getPosition().y, 0) + ")" + ":setSize(" + string(getSize(), 0) + ")"; }

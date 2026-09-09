@@ -8,29 +8,58 @@
 #include "soundManager.h"
 #include "textureManager.h"
 
-/// An ExplosionEffect is a visual explosion used by nukes, homing missiles, ship destruction, and other similar events.
+/// An AbstractExplosionEffect is the base class for explosion effects.
 /// This is a cosmetic effect and does not deal damage on its own.
-/// See also the ElectricExplosionEffect class for EMP missile effects.
-/// Example: explosion = ExplosionEffect():setPosition(500,5000):setSize(20):setOnRadar(true)
-REGISTER_SCRIPT_SUBCLASS(ExplosionEffect, SpaceObjectWithSize)
+/// See ExplosionEffect and ElectricExplosionEffect.
+REGISTER_SCRIPT_SUBCLASS_NO_CREATE(AbstractExplosionEffect, SpaceObjectWithSize)
 {
     /// Defines whether to draw the ExplosionEffect on short-range radar.
     /// Defaults to false.
     /// Example: explosion:setOnRadar(true)
-    REGISTER_SCRIPT_CLASS_FUNCTION(ExplosionEffect, setOnRadar);
+    REGISTER_SCRIPT_CLASS_FUNCTION(AbstractExplosionEffect, setOnRadar);
+}
+
+/// An ExplosionEffect is a visual explosion used by nukes, homing missiles, ship destruction, and other similar events.
+/// This is a cosmetic effect and does not deal damage on its own.
+/// See also the ElectricExplosionEffect class for EMP missile effects.
+/// Example: explosion = ExplosionEffect():setPosition(500,5000):setSize(20):setOnRadar(true)
+REGISTER_SCRIPT_SUBCLASS(ExplosionEffect, AbstractExplosionEffect)
+{
+}
+
+AbstractExplosionEffect::AbstractExplosionEffect(string multiplayer_name, float lifetime)
+    : SpaceObjectWithSize(1, multiplayer_name),
+        on_radar(false),
+        lifetime(lifetime),
+        max_lifetime(lifetime)
+{
+    registerMemberReplication(&on_radar);
+
+    // if the subclasses ever get custom implementations for ANYTHING relating to setSize/radius/etc., this needs to be moved into their constructors!
+    setSize(size);
+}
+
+void AbstractExplosionEffect::update(float delta)
+{
+    SpaceObjectWithSize::update(delta);
+
+    if (delta > 0 && lifetime == max_lifetime)
+    {
+        playSpawnSound();
+    }
+
+    lifetime -= delta;
+    if (lifetime < 0)
+        destroy();
 }
 
 REGISTER_MULTIPLAYER_CLASS(ExplosionEffect, "ExplosionEffect");
 ExplosionEffect::ExplosionEffect()
-: SpaceObjectWithSize(1, 1, "ExplosionEffect")
+: AbstractExplosionEffect("ExplosionEffect", maxLifetime)
 {
     explosion_sound = "sfx/explosion.wav";
-    on_radar = false;
-    lifetime = maxLifetime;
     for(int n=0; n<particleCount; n++)
         particleDirections[n] = glm::normalize(glm::vec3(random(-1, 1), random(-1, 1), random(-1, 1))) * random(0.8f, 1.2f);
-
-    registerMemberReplication(&on_radar);
 
     static_assert(4 * max_quad_count <= std::numeric_limits<uint16_t>::max(), "Quad count is too large, busts u16 indices size!");
 }
@@ -42,7 +71,7 @@ ExplosionEffect::~ExplosionEffect()
 
 void ExplosionEffect::draw3DTransparent()
 {
-    float f = (1.0f - (lifetime / maxLifetime));
+    float f = (1.0f - (lifetime / max_lifetime));
     float scale;
     float alpha = 0.5f;
     if (f < 0.2f)
@@ -148,16 +177,11 @@ void ExplosionEffect::drawOnRadar(sp::RenderTarget& renderer, glm::vec2 position
     if (long_range)
         return;
 
-    renderer.fillCircle(position, size * scale, glm::u8vec4(255, 0, 0, 64 * (lifetime / maxLifetime)));
+    renderer.fillCircle(position, size * scale, glm::u8vec4(255, 0, 0, 64 * (lifetime / max_lifetime)));
 }
 
-void ExplosionEffect::update(float delta)
-{
-    if (delta > 0 && lifetime == maxLifetime)
-        soundManager->playSound(explosion_sound, getPosition(), size * 2, 0.6);
-    lifetime -= delta;
-    if (lifetime < 0)
-        destroy();
+void ExplosionEffect::playSpawnSound() {
+    soundManager->playSound(explosion_sound, getPosition(), size * 2, 0.6);
 }
 
 void ExplosionEffect::initializeParticles()

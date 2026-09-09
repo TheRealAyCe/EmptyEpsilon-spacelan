@@ -20,7 +20,15 @@ REGISTER_SCRIPT_SUBCLASS_NO_CREATE(SpaceObjectWithSize, SpaceObject)
 }
 
 SpaceObjectWithSize::SpaceObjectWithSize(float collision_range, float starting_size, string multiplayer_name, float multiplayer_significant_range)
-    :SpaceObject::SpaceObject(collision_range, multiplayer_name, multiplayer_significant_range), size(starting_size)
+    :SpaceObject::SpaceObject(collision_range, multiplayer_name, multiplayer_significant_range),
+    size(starting_size)
+{
+    registerMemberReplication(&size);
+}
+
+SpaceObjectWithSize::SpaceObjectWithSize(float size_and_range, string multiplayer_name, float multiplayer_significant_range)
+    :SpaceObject::SpaceObject(size_and_range, multiplayer_name, multiplayer_significant_range),
+    size(size_and_range)
 {
     registerMemberReplication(&size);
 }
@@ -28,6 +36,7 @@ SpaceObjectWithSize::SpaceObjectWithSize(float collision_range, float starting_s
 void SpaceObjectWithSize::setSize(float s)
 {
     size = s;
+    setRadius(size);
 }
 
 float SpaceObjectWithSize::getSize()
@@ -35,22 +44,17 @@ float SpaceObjectWithSize::getSize()
     return size;
 }
 
-// Calls setSize() if the radius doesn't match the size. That means you have to call setRadius() if you want to "fix" it!
-void SpaceObjectWithSize::checkSizeMatchesRadius()
+void SpaceObjectWithSize::update(float delta)
 {
-    // size is synced, but radius is up to the object
+    updateSize();
+}
+
+void SpaceObjectWithSize::updateSize()
+{
+    // We need the "client size" to check if the server-synced variable changed.
+    // If it did, we can call setSize() for the proper, regular resizing routine.
     if (size != getRadius())
     {
         setSize(size);
-    }
-}
-
-// If the radius is not the same as size, sets the radius to size.
-void SpaceObjectWithSize::ensureRadiusIsSize()
-{
-    // size is synced, but radius is up to the object
-    if (size != getRadius())
-    {
-        setRadius(size);
     }
 }

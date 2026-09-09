@@ -28,24 +28,30 @@ REGISTER_SCRIPT_SUBCLASS(Asteroid, AbstractAsteroid)
 }
 
 AbstractAsteroid::AbstractAsteroid(string multiplayer_name)
-    : SpaceObjectWithSize(random(110, 130), 1, multiplayer_name)
+    : SpaceObjectWithSize(random(110, 130), multiplayer_name)
 {
     setRotation(random(0, 360));
     rotation_speed = random(0.1f, 0.8f);
     z = random(-50, 50);
 
-    setSize(getRadius());
-
     model_number = irandom(1, 10); // no synced, lol
-    setRadarSignatureInfo(0.05f, 0, 0);
 
     registerMemberReplication(&z);
+
+    // if the subclasses ever get custom implementations for ANYTHING relating to setSize/radius/etc., this needs to be moved into their constructors!
+    setSize(size);
+}
+
+void AbstractAsteroid::setSize(float size)
+{
+    SpaceObjectWithSize::setSize(size);
+
+    // signature based on actual size (technically x2 radius would be a lot more than x2 gravity, no?)
+    setRadarSignatureInfo(0.05f * size / 100.f, 0, 0);
 }
 
 void AbstractAsteroid::draw3D()
 {
-    ensureRadiusIsSize();
-
     auto model_matrix = getModelMatrix();
     ShaderRegistry::ScopedShader shader(ShaderRegistry::Shaders::ObjectSpecular);
 
@@ -69,20 +75,6 @@ void AbstractAsteroid::draw3D()
     glActiveTexture(GL_TEXTURE0);
 }
 
-void Asteroid::drawOnRadar(sp::RenderTarget& renderer, glm::vec2 position, float scale, float rotation, bool long_range)
-{
-    ensureRadiusIsSize();
-
-    renderer.drawSprite("radar/blip.png", position, std::max(6.0f, (getRadius() * 2.0f) * scale), glm::u8vec4(255, 200, 100, 255));
-}
-
-void AbstractAsteroid::setSize(float size)
-{
-    SpaceObjectWithSize::setSize(size);
-
-    setRadius(size);
-}
-
 glm::mat4 AbstractAsteroid::getModelMatrix() const
 {
     auto asteroid_matrix = glm::translate(SpaceObject::getModelMatrix(), glm::vec3(0.f, 0.f, z));
@@ -97,6 +89,11 @@ Asteroid::Asteroid()
     PathPlannerManager::getInstance()->addAvoidObject(this, 300);
     setCollisionTypeStatic();   // static bodies do not collide with other static bodies
                                 // currently only asteroids are static bodies
+}
+
+void Asteroid::drawOnRadar(sp::RenderTarget& renderer, glm::vec2 position, float scale, float rotation, bool long_range)
+{
+    renderer.drawSprite("radar/blip.png", position, std::max(6.0f, (getRadius() * 2.0f) * scale), glm::u8vec4(255, 200, 100, 255));
 }
 
 void Asteroid::collide(Collisionable* target, float force)

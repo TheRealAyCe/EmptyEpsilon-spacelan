@@ -23,22 +23,33 @@ struct VertexAndTexCoords
 /// AI behaviors avoid BlackHoles by a 2U margin.
 /// In 3D space, a BlackHole resembles a black sphere with blue horizon.
 /// Example: black_hole = BlackHole():setPosition(1000,2000)
-REGISTER_SCRIPT_SUBCLASS(BlackHole, SpaceObject)
+REGISTER_SCRIPT_SUBCLASS(BlackHole, SpaceObjectWithSize)
 {
 }
 
 REGISTER_MULTIPLAYER_CLASS(BlackHole, "BlackHole");
 BlackHole::BlackHole()
-: SpaceObject(5000, "BlackHole")
+: SpaceObjectWithSize(5000, "BlackHole")
 {
-    update_delta = 0.0;
     PathPlannerManager::getInstance()->addAvoidObject(this, 7000);
-    setRadarSignatureInfo(0.9, 0, 0);
+
+    setSize(size);
 }
 
 void BlackHole::update(float delta)
 {
+    SpaceObjectWithSize::update(delta);
+
     update_delta = delta;
+}
+
+void BlackHole::setSize(float size)
+{
+    SpaceObjectWithSize::setSize(size);
+
+    float size_scale = size / 5000;
+
+    setRadarSignatureInfo(0.9 * size_scale, 0.0, 0.0);
 }
 
 void BlackHole::draw3DTransparent()

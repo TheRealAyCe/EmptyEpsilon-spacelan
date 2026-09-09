@@ -34,25 +34,20 @@ PVector<Nebula> Nebula::nebula_list;
 
 REGISTER_MULTIPLAYER_CLASS(Nebula, "Nebula")
 Nebula::Nebula()
-: SpaceObjectWithSize(5000, 5000, "Nebula")
+: SpaceObjectWithSize(5000, "Nebula")
 {
-    // Nebulae need a large radius to render properly from a distance, but
-    // collision isn't important, so set the collision radius to a tiny range.
-    //setCollisionRadius(1); // already done above
     setRotation(random(0, 360));
     radar_visual = irandom(1, 3);
-    setRadarSignatureInfo(0.0, 0.8, -1.0);
 
     registerMemberReplication(&radar_visual);
 
     nebula_list.push_back(this);
 
-    setSize(getRadius());
+    setSize(size);
 }
 
 void Nebula::draw3DTransparent()
 {
-    checkSizeMatchesRadius();
     ShaderRegistry::ScopedShader shader(ShaderRegistry::Shaders::Billboard);
 
     std::array<VertexAndTexCoords, 4> quad{
@@ -99,7 +94,11 @@ void Nebula::setSize(float size)
 {
     SpaceObjectWithSize::setSize(size);
 
-    setRadius(size);
+    // TODO: Maybe don't scale linearly?
+    float relative_size = size / 5000.f;
+
+    setRadarSignatureInfo(0.0f, 0.8f * relative_size, -1.0f * relative_size);
+
     for(int n=0; n<cloud_count; n++)
     {
         clouds[n].size = random(512, 1024 * 2);
@@ -112,15 +111,11 @@ void Nebula::setSize(float size)
 
 void Nebula::drawOnRadar(sp::RenderTarget& renderer, glm::vec2 position, float scale, float rotation, bool long_range)
 {
-    checkSizeMatchesRadius();
-
     renderer.drawRotatedSpriteBlendAdd("Nebula" + string(radar_visual) + ".png", position, getRadius() * scale * 3.0f, getRotation()-rotation);
 }
 
 void Nebula::drawOnGMRadar(sp::RenderTarget& renderer, glm::vec2 position, float scale, float rotation, bool long_range)
 {
-    checkSizeMatchesRadius();
-
     renderer.drawCircleOutline(position, getRadius() * scale, 2.0, glm::u8vec4(255, 255, 255, 64));
 }
 
