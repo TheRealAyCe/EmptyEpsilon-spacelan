@@ -49,7 +49,7 @@ void BlackHole::setSize(float size)
 
     float size_scale = size / 5000;
 
-    setRadarSignatureInfo(0.9 * size_scale, 0.0, 0.0);
+    setRadarSignatureInfo(0.9f * size_scale, 0.0, 0.0);
 }
 
 void BlackHole::draw3DTransparent()

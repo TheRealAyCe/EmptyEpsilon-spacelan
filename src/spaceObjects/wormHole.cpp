@@ -116,7 +116,7 @@ void WormHole::setSize(float size)
 
     float size_scale = size / DEFAULT_COLLISION_RADIUS;
 
-    setRadarSignatureInfo(0.9 * size_scale, 0.0, 0.0);
+    setRadarSignatureInfo(0.9f * size_scale, 0.0, 0.0);
 }
 
 void WormHole::collide(Collisionable* target, float collision_force)
