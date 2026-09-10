@@ -50,10 +50,13 @@ REGISTER_MULTIPLAYER_CLASS(WormHole, "WormHole");
 WormHole::WormHole()
 : SpaceObjectWithSize(DEFAULT_COLLISION_RADIUS, "WormHole")
 {
-    pathPlanner = PathPlannerManager::getInstance();
-    pathPlanner->addAvoidObject(this, (DEFAULT_COLLISION_RADIUS * AVOIDANCE_MULTIPLIER) );
-
     setSize(size);
+    ensureIsInAvoidList(this);
+}
+
+float WormHole::getAvoidSize()
+{
+    return DEFAULT_COLLISION_RADIUS * AVOIDANCE_MULTIPLIER;
 }
 
 void WormHole::draw3DTransparent()

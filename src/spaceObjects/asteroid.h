@@ -3,6 +3,7 @@
 
 #include "spaceObject.h"
 #include "spaceObjectWithSize.h"
+#include "pathPlanner.h"
 
 class AbstractAsteroid : public SpaceObjectWithSize
 {
@@ -25,13 +26,14 @@ protected:
     glm::mat4 getModelMatrix() const override;
 };
 
-class Asteroid : public AbstractAsteroid
+class Asteroid : public AbstractAsteroid, public IAvoidableSpaceObject
 {
 public:
     Asteroid();
 
     virtual void drawOnRadar(sp::RenderTarget& renderer, glm::vec2 position, float scale, float rotation, bool long_range) override;
     virtual void collide(Collisionable* target, float force) override;
+    virtual float getAvoidSize() override;
 
     virtual string getExportLineStart() override { return "Asteroid()"; }
 };

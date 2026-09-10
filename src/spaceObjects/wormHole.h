@@ -5,12 +5,11 @@
 #include "spaceObjectWithSize.h"
 #include "pathPlanner.h"
 
-class WormHole : public SpaceObjectWithSize
+class WormHole : public SpaceObjectWithSize, public virtual IAvoidableSpaceObject
 {
 private:
     glm::vec2 target_position = glm::vec2(0.0f, 0.0f);
     float update_delta = 0.0f;
-    P<PathPlannerManager>  pathPlanner;
 
     ScriptSimpleCallback on_teleportation;
 
@@ -32,6 +31,7 @@ public:
 
     virtual void setSize(float size) override;
     virtual float getReasonableMaxValue() override { return 50000; }
+    virtual float getAvoidSize() override;
 };
 
 #endif//WORM_HOLE_H

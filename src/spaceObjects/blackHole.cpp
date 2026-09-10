@@ -31,9 +31,14 @@ REGISTER_MULTIPLAYER_CLASS(BlackHole, "BlackHole");
 BlackHole::BlackHole()
 : SpaceObjectWithSize(5000, "BlackHole")
 {
-    PathPlannerManager::getInstance()->addAvoidObject(this, 7000);
-
     setSize(size);
+    ensureIsInAvoidList(this);
+}
+
+float BlackHole::getAvoidSize()
+{
+    // orig: size=5000, avoid=7000
+    return 1000 + getSize() * 1.2f;
 }
 
 void BlackHole::update(float delta)

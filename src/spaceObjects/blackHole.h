@@ -2,8 +2,9 @@
 #define BLACK_HOLE_H
 
 #include "spaceObjectWithSize.h"
+#include "pathPlanner.h"
 
-class BlackHole : public SpaceObjectWithSize
+class BlackHole : public SpaceObjectWithSize, public IAvoidableSpaceObject
 {
     float update_delta = 0.f;
 
@@ -24,6 +25,7 @@ public:
 
     virtual void setSize(float size) override;
     virtual float getReasonableMaxValue() override { return 50000; }
+    virtual float getAvoidSize() override;
 };
 
 #endif//BLACK_HOLE_H

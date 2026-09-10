@@ -4,7 +4,6 @@
 #include "explosionEffect.h"
 #include "main.h"
 #include "random.h"
-#include "pathPlanner.h"
 
 #include "scriptInterface.h"
 #include "glObjects.h"
@@ -86,9 +85,15 @@ REGISTER_MULTIPLAYER_CLASS(Asteroid, "Asteroid");
 Asteroid::Asteroid()
 : AbstractAsteroid("Asteroid")
 {
-    PathPlannerManager::getInstance()->addAvoidObject(this, 300);
     setCollisionTypeStatic();   // static bodies do not collide with other static bodies
                                 // currently only asteroids are static bodies
+    ensureIsInAvoidList(this);
+}
+
+float Asteroid::getAvoidSize()
+{
+    // orig: size=110 to 130, avoid=300
+    return getSize() * 1.5f + 120;
 }
 
 void Asteroid::drawOnRadar(sp::RenderTarget& renderer, glm::vec2 position, float scale, float rotation, bool long_range)
