@@ -72,7 +72,7 @@ void Zone::drawOnRadar(sp::RenderTarget& renderer, glm::vec2 position, float sca
         return;
 
     std::vector<glm::vec2> outline_points;
-    for(auto p : outline)
+    for(auto& p : outline)
         outline_points.push_back(position + rotateVec2(p * scale, -rotation));
     renderer.drawTriangles(outline_points, triangles, glm::u8vec4(color.r, color.g, color.b, 64));
     outline_points.push_back(position + rotateVec2(outline[0] * scale, -rotation));
