@@ -14,6 +14,7 @@ public:
 
     float engine_scale;
     float warp_scale;
+    glm::vec3 scale = glm::vec3(1);
 
     void render(glm::vec2 position, float rotation, const glm::mat4& model_matrix);
     void renderOverlay(const glm::mat4& model_matrix, sp::Texture* texture, float alpha);

@@ -30,7 +30,7 @@ void ModelInfo::render(glm::vec2 position, float rotation, const glm::mat4& mode
     if (!data)
         return;
 
-    data->render(model_matrix);
+    data->render(glm::scale(model_matrix, scale));
 
     if (engine_scale > 0.0f)
     {
@@ -38,7 +38,7 @@ void ModelInfo::render(glm::vec2 position, float rotation, const glm::mat4& mode
         {
             for (unsigned int n=0; n<data->engine_emitters.size(); n++)
             {
-                glm::vec3 offset = data->engine_emitters[n].position * data->scale;
+                glm::vec3 offset = data->engine_emitters[n].position * data->scale * scale;
                 glm::vec2 pos2d = position + rotateVec2(glm::vec2(offset.x, offset.y), rotation);
                 glm::vec3 color = data->engine_emitters[n].color;
                 glm::vec3 pos3d = glm::vec3(pos2d.x, pos2d.y, offset.z);
@@ -72,7 +72,7 @@ void ModelInfo::renderOverlay(const glm::mat4& model_matrix, sp::Texture* textur
     if (!data)
         return;
 
-    auto overlay_matrix = glm::scale(model_matrix, glm::vec3(data->scale));
+    auto overlay_matrix = glm::scale(model_matrix, glm::vec3(data->scale) * scale);
     overlay_matrix = glm::translate(overlay_matrix, glm::vec3(data->mesh_offset.x, data->mesh_offset.y, data->mesh_offset.z));
 
     glDepthFunc(GL_EQUAL);
@@ -96,7 +96,7 @@ void ModelInfo::renderOverlay(const glm::mat4& model_matrix, sp::Texture* textur
 void ModelInfo::renderShield(const glm::mat4& model_matrix, float alpha)
 {
     auto shield_matrix = glm::rotate(model_matrix, glm::radians(engine->getElapsedTime() * 5), {0.f, 0.f, 1.f});
-    shield_matrix = glm::scale(shield_matrix, 1.2f * glm::vec3{data->radius});
+    shield_matrix = glm::scale(shield_matrix, 1.2f * scale * glm::vec3{data->radius});
 
     Mesh* m = Mesh::getMesh("mesh/sphere.obj");
     {
@@ -120,7 +120,7 @@ void ModelInfo::renderShield(const glm::mat4& model_matrix, float alpha, float a
         return;
     auto shield_matrix = glm::rotate(model_matrix, glm::radians(angle), glm::vec3(0.f, 0.f, 1.f));
         shield_matrix = glm::rotate(shield_matrix, glm::radians(engine->getElapsedTime() * 5), glm::vec3(0.f, 0.f, 1.f));
-        shield_matrix = glm::scale(shield_matrix, 1.2f * glm::vec3(data->radius));
+        shield_matrix = glm::scale(shield_matrix, 1.2f * scale * glm::vec3(data->radius));
     Mesh* m = Mesh::getMesh("mesh/half_sphere.obj");
     {
         ShaderRegistry::ScopedShader basicShader(ShaderRegistry::Shaders::Basic);
