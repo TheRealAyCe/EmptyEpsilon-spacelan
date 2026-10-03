@@ -7,7 +7,7 @@
 class ISpaceObjectWithSize
 {
 public:
-	virtual ~ISpaceObjectWithSize() = default;
+	virtual ~ISpaceObjectWithSize() {};
 	virtual float getSize() = 0;
 	virtual void setSize(float size) = 0;
 	virtual float getReasonableMinValue() { return 0.1f; };

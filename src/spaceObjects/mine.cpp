@@ -32,62 +32,106 @@ REGISTER_SCRIPT_SUBCLASS(Mine, SpaceObject)
 
 REGISTER_MULTIPLAYER_CLASS(Mine, "Mine");
 Mine::Mine()
-: SpaceObject(50, "Mine"), data(MissileWeaponData::getDataFor(MW_Mine))
+: SpaceObjectWithSize(0, "Mine"), data(MissileWeaponData::getDataFor(MW_Mine))
 {
-    setCollisionRadius(trigger_range);
-    triggered = false;
-    triggerTimeout = triggerDelay;
-    ejectTimeout = 0.0;
-    particleTimeout = 0.0;
-    setRadarSignatureInfo(0.0, 0.05, 0.0);
-
-    PathPlannerManager::getInstance()->addAvoidObject(this, blastRange * 1.2f);
+    blink_offset = random(0, 10000);
+    setSize(1);
+    ensureIsInAvoidList(this);
 }
 
 Mine::~Mine()
 {
 }
 
-void Mine::draw3D()
+void Mine::setSize(float scale)
 {
+    size = scale;
+    setRadarSignatureInfo(0.f, 0.05f * scale, 0.f);
+    setRadius(getTriggerRadius());
+    if (scale <= 0.75f)
+    {
+        model_name = "mine_small";
+    }
+    else if (scale >= 1.5f)
+    {
+        model_name = "mine_big";
+    }
+    else
+    {
+        model_name = "mine_medium";
+    }
+    model_info.scale = glm::vec3(scale);
+    updateModel();
 }
 
-void Mine::draw3DTransparent()
+void Mine::updateModel()
 {
+    bool is_lit;
+    if (triggered) 
+    {
+        // pulse very rapidly
+        is_lit = fmodf(engine->getElapsedTime() + blink_offset, 0.1f) < 0.05f;
+    }
+    else
+    {
+        // pulse depending on size, large mines blink slower
+        auto size = getSize();
+        is_lit = fmodf(engine->getElapsedTime() + blink_offset, size) < size * 0.25f;
+    }
+    model_info.setData(model_name+(is_lit?"_lit":"_unlit"));
 }
+
+static const float MINE_LONG_RANGE_MIN_RADAR_SIZE = 10.f;
 
 void Mine::drawOnRadar(sp::RenderTarget& renderer, glm::vec2 position, float scale, float rotation, bool long_range)
 {
-    renderer.drawSprite("radar/mine.png", position, 0.3 * 32);
+    float size = getRadius() * scale * 1.6f;
+    if (long_range)
+    {
+        size = std::fmaxf(size, MINE_LONG_RANGE_MIN_RADAR_SIZE);
+    }
+    renderer.drawSprite("radar/mine.png", position, size);
 }
 
 void Mine::drawOnGMRadar(sp::RenderTarget& renderer, glm::vec2 position, float scale, float rotation, bool long_range)
 {
-    renderer.drawCircleOutline(position, trigger_range * scale, 3.0, triggered ? glm::u8vec4(255, 0, 0, 128) : glm::u8vec4(255, 255, 255, 128));
+    renderer.drawCircleOutline(position, getTriggerRadius() * scale, 3.0, triggered ? glm::u8vec4(255, 0, 0, 128) : glm::u8vec4(255, 255, 255, 128));
+    
+    renderer.drawCircleOutline(position, getBlastRadius() * scale, 1.0, triggered ? glm::u8vec4(127, 0, 0, 128) : glm::u8vec4(255, 0, 0, 128));
 }
 
 void Mine::update(float delta)
 {
+    if (getRadius() != getTriggerRadius())
+    {
+        setSize(size);
+    }
+
     if (particleTimeout > 0)
     {
         particleTimeout -= delta;
     }else{
+        float size = getSize();
+        float distance = size * 2;
         glm::vec3 pos = glm::vec3(getPosition().x, getPosition().y, 0);
-        ParticleEngine::spawn(pos, pos + glm::vec3(random(-100, 100), random(-100, 100), random(-100, 100)), glm::vec3(1, 1, 1), glm::vec3(0, 0, 1), 30, 0, 10.0);
-        particleTimeout = 0.4;
+        ParticleEngine::spawn(pos, pos + glm::vec3(random(-100, 100) * distance, random(-100, 100) * distance, random(-100, 100) * distance), glm::vec3(1, 1, 1), triggered ? glm::vec3(1, 0, 0) : glm::vec3(0, 0, 1), 30 * size * 2, 0, triggered ? 2.f : 10.f);
+        particleTimeout = triggered ? 0.01f : 0.4f;
     }
 
     if (ejectTimeout > 0.0f)
     {
         ejectTimeout -= delta;
-        setVelocity(vec2FromAngle(getRotation()) * data.speed);
+        setVelocity(vec2FromAngle(getRotation()) * (data.speed / getSize()));
     }else{
         setVelocity(glm::vec2(0, 0));
     }
+    updateModel();
     if (!triggered)
         return;
-    triggerTimeout -= delta;
-    if (triggerTimeout <= 0)
+    triggerTimeout += delta;
+
+    // larger mines take longer to trigger, smaller mines trigger faster
+    if (triggerTimeout >= getSize())
     {
         explode();
     }
@@ -102,11 +146,16 @@ void Mine::collide(Collisionable* target, float force)
         return;
 
     triggered = true;
+    particleTimeout = 0;
 }
 
 void Mine::eject()
 {
-    ejectTimeout = data.lifetime;
+    // eject timing scale:
+    // - half of standard lifetime is always used as base (even the smallest mines take this long to arm)
+    // - other half is multiplied by the size
+    // -> small mines will arm in 75% the standard time, large mines will arm in 150% the standard time
+    ejectTimeout = data.lifetime * (1.f + getSize()) * 0.5f;
 }
 
 void Mine::explode()
@@ -117,13 +166,14 @@ void Mine::explode()
     else
         info = DamageInfo(this, DT_Kinetic, getPosition());
 
-    SpaceObject::damageArea(getPosition(), blastRange, damageAtEdge, damageAtCenter, info, blastRange / 2.0f);
+    float blast_range = getBlastRadius();
+    SpaceObject::damageArea(getPosition(), blast_range, getDamageEdge(), getDamageCenter(), info, blast_range / 2.0f);
 
     P<ExplosionEffect> e = new ExplosionEffect();
-    e->setSize(blastRange);
+    e->setSize(blast_range);
     e->setPosition(getPosition());
     e->setOnRadar(true);
-    e->setRadarSignatureInfo(0.0, 0.0, 0.2);
+    e->setRadarSignatureInfo(0.0, 0.0, 0.2f * getSize());
 
     if (on_destruction.isSet())
     {

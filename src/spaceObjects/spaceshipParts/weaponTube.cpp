@@ -149,6 +149,7 @@ void WeaponTube::spawnProjectile(float target_angle)
             missile->setFactionId(parent->getFactionId());
             missile->setPosition(fireLocation);
             missile->setRotation(parent->getRotation() + direction);
+            missile->setSize(MissileWeaponData::convertSizeToCategoryModifier(size));
             missile->eject();
         }
         break;

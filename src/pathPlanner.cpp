@@ -31,9 +31,9 @@ const uint32_t sectorSize0Objs = ((1 << 15) - 1); // X = 32767, Y = 0
 
 //#define DEBUG_DYNAMIC_AVOID
 
-#ifndef DEBUG
-#undef DEBUG_DYNAMIC_AVOID
-#endif
+//#ifndef DEBUG
+//#undef DEBUG_DYNAMIC_AVOID
+//#endif
 
 void PathPlannerManager::addAvoidObject(P<SpaceObject> source, float size)
 {
