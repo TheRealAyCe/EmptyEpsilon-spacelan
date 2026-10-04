@@ -94,6 +94,7 @@ Asteroid::Asteroid()
 float Asteroid::getAvoidSize()
 {
     // orig: size=110 to 130, avoid=300
+    // TODO: This seems excessive - are AIs even capable of navigating asteroid fields??
     return getSize() * 1.5f + 120;
 }
 
@@ -111,7 +112,7 @@ void Asteroid::collide(Collisionable* target, float force)
         return;
 
     DamageInfo info(this, DT_Kinetic, getPosition());
-    hit_object->takeDamage(35, info); // TODO: Scale damage by size
+    hit_object->takeDamage(0.35f * getRadius(), info);
 
     P<ExplosionEffect> e = new ExplosionEffect();
     e->setSize(getRadius());
@@ -131,4 +132,22 @@ REGISTER_MULTIPLAYER_CLASS(VisualAsteroid, "VisualAsteroid");
 VisualAsteroid::VisualAsteroid()
 : AbstractAsteroid("VisualAsteroid")
 {
+    setZ(z < 0 ? (-150 - z*2 - size) : (150 + z*2 + size));
+}
+
+void VisualAsteroid::setSize(float size)
+{
+    auto previous_offset = z + getSize() * (z < 0 ? 1.f : -1.f);
+    setSizeAndZ(size, previous_offset + (z < 0 ? -size : size));
+}
+
+void VisualAsteroid::setSizeAndZ(float size, float z)
+{
+    setZ(z);
+    AbstractAsteroid::setSize(size);
+}
+
+void VisualAsteroid::drawOnRadar(sp::RenderTarget& renderer, glm::vec2 position, float scale, float rotation, bool long_range)
+{
+    renderer.drawSprite("radar/blip.png", position, getRadius() * 2.0f * scale, glm::u8vec4(200, 150, 50, 50));
 }
