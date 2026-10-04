@@ -109,6 +109,7 @@ public:
     TemplateType getType();
 
     P<ModelData> model_data;
+    glm::vec3 model_scale = glm::vec3(1);
     bool visible{true}; //Should be visible in science/gm/other player facing locations. Invisible templates exists for backwards compatibility.
 
     /*!
@@ -174,6 +175,8 @@ public:
     void setDescription(string description);
     void hidden() { visible = false; }
     void setModel(string model_name);
+    void setModelScale(float scale);
+    void setModelScaleVec(glm::vec3 scale);
     void setDefaultAI(string default_ai_name);
     void setDockClasses(const std::vector<string>& classes);
     void setExternalDockClasses(const std::vector<string>& classes);
@@ -244,6 +247,7 @@ public:
     ESystem getSystemAtRoom(glm::ivec2 position);
 
     void setCollisionData(P<SpaceObject> object);
+    glm::vec3 getBeamPosition(int beam_no) { return model_data->getBeamPosition(beam_no) * model_scale; }
 public:
     static P<ShipTemplate> getTemplate(string name);
     static std::vector<string> getAllTemplateNames();

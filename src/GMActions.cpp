@@ -87,8 +87,9 @@ void GameMasterActions::equipFighter(P<PlayerSpaceship> ship, sp::io::DataBuffer
     ship->setControlCode(password);
     if (color != "")
         ship->setColor(color);
-    if (model != "")
-        ship->setModel(model);
+    // TODO: What is model? Is this supposed to be the ship template? Cause we can't just take the model like that, it doesn't work this way.
+    //if (model != "")
+    //    ship->setModel(model);
     string old_equipment = ship->getEquipment();
     if (equipment != "" && equipment != old_equipment)
     {
@@ -101,7 +102,7 @@ void GameMasterActions::equipFighter(P<PlayerSpaceship> ship, sp::io::DataBuffer
         {
             for(int n=0; n<max_beam_weapons; n++)
             {
-                ship->beam_weapons[n].setPosition(ship_template->model_data->getBeamPosition(n));
+                ship->beam_weapons[n].setPosition(ship_template->getBeamPosition(n));
                 ship->beam_weapons[n].setArc(ship_template->beams[n].getArc());
                 ship->beam_weapons[n].setDirection(ship_template->beams[n].getDirection());
                 ship->beam_weapons[n].setRange(ship_template->beams[n].getRange());
@@ -203,7 +204,7 @@ void GameMasterActions::equipFighter(P<PlayerSpaceship> ship, sp::io::DataBuffer
                 else
                     break;
 
-            ship->beam_weapons[offset].setPosition(ship_template->model_data->getBeamPosition(offset));
+            ship->beam_weapons[offset].setPosition(ship_template->getBeamPosition(offset));
             ship->beam_weapons[offset].setArc(30);
             ship->beam_weapons[offset].setDirection(0);
             ship->beam_weapons[offset].setRange(900);
@@ -226,7 +227,7 @@ void GameMasterActions::equipFighter(P<PlayerSpaceship> ship, sp::io::DataBuffer
                     break;
             for (int n=offset; n<=offset+1; n++)
             {
-                ship->beam_weapons[n].setPosition(ship_template->model_data->getBeamPosition(n));
+                ship->beam_weapons[n].setPosition(ship_template->getBeamPosition(n));
                 ship->beam_weapons[n].setArc(30);
                 ship->beam_weapons[n].setRange(900);
                 ship->beam_weapons[n].setTurretArc(0);

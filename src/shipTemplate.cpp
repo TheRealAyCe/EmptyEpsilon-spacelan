@@ -70,6 +70,12 @@ REGISTER_SCRIPT_CLASS(ShipTemplate)
     /// ModelData objects define a 3D mesh, textures, adjustments, and collision box, and are loaded from scripts/model_data.lua when EmptyEpsilon is launched.
     /// Example: template:setModel("AtlasHeavyFighterYellow") -- uses the ModelData named "AtlasHeavyFighterYellow"
     REGISTER_SCRIPT_CLASS_FUNCTION(ShipTemplate, setModel);
+    /// Sets the scale of the 3D model, allowing for easy reuse of existing models in a smaller/larger variant.
+    /// Example: template:setModelScale(2) -- twice the size
+    REGISTER_SCRIPT_CLASS_FUNCTION(ShipTemplate, setModelScale);
+    /// Sets the scale of the 3D model, allowing for easy reuse of existing models in a smaller/larger variant.
+    /// Example: template:setModelScaleVec(1,1,2) -- twice the size in Z direction only
+    REGISTER_SCRIPT_CLASS_FUNCTION(ShipTemplate, setModelScaleVec);
     /// As ShipTemplate:setExternalDockClasses().
     REGISTER_SCRIPT_CLASS_FUNCTION(ShipTemplate, setDockClasses);
     /// Defines a list of vessel classes that can be externally docked to ShipTemplateBasedObjects created from this ShipTemplate.
@@ -539,7 +545,7 @@ ESystem ShipTemplate::getSystemAtRoom(glm::ivec2 position)
 
 void ShipTemplate::setCollisionData(P<SpaceObject> object)
 {
-    model_data->setCollisionData(object);
+    model_data->setCollisionData(object, model_scale);
 }
 
 void ShipTemplate::setShields(const std::vector<float>& values)
@@ -623,6 +629,16 @@ void ShipTemplate::setDescription(string description)
 void ShipTemplate::setModel(string model_name)
 {
     this->model_data = ModelData::getModel(model_name);
+}
+
+void ShipTemplate::setModelScale(float scale)
+{
+    setModelScaleVec(glm::vec3(scale));
+}
+
+void ShipTemplate::setModelScaleVec(glm::vec3 scale)
+{
+    model_scale = scale;
 }
 
 void ShipTemplate::setDefaultAI(string default_ai_name)

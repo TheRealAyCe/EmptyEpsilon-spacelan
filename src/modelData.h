@@ -114,11 +114,12 @@ public:
     //Depricated
     void addEngineEmitor(glm::vec3 position, glm::vec3 color, float scale);
 
-    glm::vec3 getBeamPosition(int index);
-    glm::vec2 getBeamPosition2D(int index);
-    glm::vec3 getTubePosition(int index);
-    glm::vec2 getTubePosition2D(int index);
+    glm::vec3 getBeamPosition(int index) const;
+    glm::vec2 getBeamPosition2D(int index) const;
+    glm::vec3 getTubePosition(int index) const;
+    glm::vec2 getTubePosition2D(int index) const;
     void setCollisionData(P<SpaceObject> object);
+    void setCollisionData(P<SpaceObject> object, glm::vec3 scale);
     float getRadius();
 
     void load();

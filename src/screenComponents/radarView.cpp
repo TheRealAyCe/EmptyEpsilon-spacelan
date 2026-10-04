@@ -463,7 +463,7 @@ void GuiRadarView::drawTargetProjections(sp::RenderTarget& renderer)
         {
             if (!my_spaceship->weapon_tube[n].isLoaded())
                 continue;
-            auto fire_position = my_spaceship->getPosition() + rotateVec2(my_spaceship->ship_template->model_data->getTubePosition2D(n), my_spaceship->getRotation());
+            auto fire_position = my_spaceship->getPosition() + rotateVec2(my_spaceship->getTubePosition(n), my_spaceship->getRotation());
 
             const MissileWeaponData& data = MissileWeaponData::getDataFor(my_spaceship->weapon_tube[n].getLoadType());
             float fire_angle = my_spaceship->weapon_tube[n].getDirection() + (my_spaceship->getRotation());
@@ -554,7 +554,7 @@ void GuiRadarView::drawMissileTubes(sp::RenderTarget& renderer)
     {
         for(int n=0; n<my_spaceship->weapon_tube_count; n++)
         {
-            auto fire_position = my_spaceship->getPosition() + rotateVec2(my_spaceship->ship_template->model_data->getTubePosition2D(n), my_spaceship->getRotation());
+            auto fire_position = my_spaceship->getPosition() + rotateVec2(my_spaceship->getTubePosition(n), my_spaceship->getRotation());
             auto fire_draw_position = worldToScreen(fire_position);
 
             float fire_angle = my_spaceship->getRotation() + my_spaceship->weapon_tube[n].getDirection() - view_rotation;

@@ -143,9 +143,6 @@ public:
 
     string getShieldDataString();
 
-    // Set model
-    void setModel(string model) { model_name = model; }
-
 	int getResourceAmount(string resource_name) { return resources[resource_name]; }
 	void setResourceAmount(string resource_name, int amount) { resources[resource_name] = amount; }
 	void increaseResourceAmount(string resource_name, int amount) { resources[resource_name] += amount; }
@@ -160,6 +157,10 @@ public:
     void setResourceDescription(string resource_name, string resource_description) { resource_descriptions[resource_name] = resource_description; }
     string getResourceDescription(string resource_name) { return resource_descriptions[resource_name]; }
     std::vector<string> getResources(string category); 
+
+    glm::vec3 getBeamPosition(int beam_no) { return model_info.getData()->getBeamPosition(beam_no) * model_info.scale; }
+    glm::vec2 getBeamPosition2D(int beam_no) { return getBeamPosition(beam_no); }
+    glm::vec2 getTubePosition(int tube_no) { return model_info.getData()->getTubePosition2D(tube_no) * glm::vec2(model_info.scale); }
 };
 
 #endif//SHIP_TEMPLATE_BASED_OBJECT_H

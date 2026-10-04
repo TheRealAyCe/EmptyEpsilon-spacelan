@@ -211,33 +211,37 @@ void ModelData::setSpecular(string specular_texture_name)
 }
 void ModelData::setCollisionData(P<SpaceObject> object)
 {
-    object->setRadius(radius);
+    setCollisionData(object, glm::vec3(1));
+}
+void ModelData::setCollisionData(P<SpaceObject> object, glm::vec3 scale)
+{
+    object->setRadius(radius * scale.y);
     if (collision_box.x > 0 && collision_box.y > 0)
-        object->setCollisionBox(collision_box);
+        object->setCollisionBox(collision_box * glm::vec2(scale));
 }
 
-glm::vec3 ModelData::getBeamPosition(int index)
+glm::vec3 ModelData::getBeamPosition(int index) const
 {
     if (index < 0 || index >= (int)beam_position.size())
         return glm::vec3(0.0f, 0.0f, 0.0f);
     return (beam_position[index] + mesh_offset) * scale;
 }
 
-glm::vec2 ModelData::getBeamPosition2D(int index)
+glm::vec2 ModelData::getBeamPosition2D(int index) const
 {
     if (index < 0 || index >= (int)beam_position.size())
         return glm::vec2(0.0f, 0.0f);
     return glm::vec2(beam_position[index].x + mesh_offset.x, beam_position[index].y + mesh_offset.y) * scale;
 }
 
-glm::vec3 ModelData::getTubePosition(int index)
+glm::vec3 ModelData::getTubePosition(int index) const
 {
     if (index < 0 || index >= (int)tube_position.size())
         return glm::vec3(0.0f, 0.0f, 0.0f);
     return (tube_position[index] + mesh_offset) * scale;
 }
 
-glm::vec2 ModelData::getTubePosition2D(int index)
+glm::vec2 ModelData::getTubePosition2D(int index) const
 {
     if (index < 0 || index >= (int)tube_position.size())
         return glm::vec2(0.0f, 0.0f);

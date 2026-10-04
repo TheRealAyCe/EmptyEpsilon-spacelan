@@ -610,7 +610,7 @@ void SpaceShip::applyTemplateValues()
 {
     for(int n=0; n<max_beam_weapons; n++)
     {
-        beam_weapons[n].setPosition(ship_template->model_data->getBeamPosition(n));
+        beam_weapons[n].setPosition(ship_template->getBeamPosition(n));
         beam_weapons[n].setArc(ship_template->beams[n].getArc());
         beam_weapons[n].setDirection(ship_template->beams[n].getDirection());
         beam_weapons[n].setRange(ship_template->beams[n].getRange());
@@ -882,7 +882,7 @@ void SpaceShip::drawOnRadar(sp::RenderTarget& renderer, glm::vec2 position, floa
             float beam_range = beam_weapons[n].getRange();
 
             // Set the beam's origin on radar to its relative position on the mesh.
-            auto beam_offset = rotateVec2(ship_template->model_data->getBeamPosition2D(n) * scale, getRotation()-rotation);
+            auto beam_offset = rotateVec2(getBeamPosition2D(n) * scale, getRotation()-rotation);
             auto arc_center = beam_offset + position;
 
             draw_arc(arc_center, getRotation() - rotation + (beam_direction - beam_arc / 2.0f), beam_arc, beam_range * scale, color);

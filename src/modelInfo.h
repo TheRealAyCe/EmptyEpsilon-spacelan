@@ -23,6 +23,7 @@ public:
 
     void setData(P<ModelData> data) { this->data = data; }
     void setData(string name);
+    const ModelData* getData() const { return *data; }
 };
 
 #endif//MODEL_INFO_H

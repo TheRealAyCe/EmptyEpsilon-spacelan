@@ -254,7 +254,6 @@ ShipTemplateBasedObject::ShipTemplateBasedObject(float collision_range, string m
     short_range_radar_range = 5000.0f;
     restocks_missiles_docked = R_None;
     player_ship_type = PST_Ship;
-    model_name = "";
 
     registerMemberReplication(&template_name);
     registerMemberReplication(&type_name);
@@ -385,6 +384,7 @@ void ShipTemplateBasedObject::update(float delta)
         // If it does exist, set up its collider and model.
         ship_template->setCollisionData(this);
         model_info.setData(ship_template->model_data);
+        model_info.scale = ship_template->model_scale;
     }
 
     for(int n=0; n<shield_count; n++)
@@ -566,6 +566,7 @@ void ShipTemplateBasedObject::setTemplate(string template_name)
 
     ship_template->setCollisionData(this);
     model_info.setData(ship_template->model_data);
+    model_info.scale = ship_template->model_scale;
     player_ship_type = ship_template->player_ship_type;
 
     //Call the virtual applyTemplateValues function so subclasses can get extra values from the ship templates.

@@ -115,7 +115,7 @@ void WeaponTube::fire(float target_angle)
 
 void WeaponTube::spawnProjectile(float target_angle)
 {
-    auto fireLocation = parent->getPosition() + rotateVec2(parent->ship_template->model_data->getTubePosition2D(tube_index), parent->getRotation());
+    auto fireLocation = parent->getPosition() + rotateVec2(parent->getTubePosition(tube_index), parent->getRotation());
     switch(type_loaded)
     {
     case MW_Homing:
