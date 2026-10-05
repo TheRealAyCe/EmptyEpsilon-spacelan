@@ -33,11 +33,16 @@ class Asteroid : public AbstractAsteroid, public IAvoidableSpaceObject
 public:
     Asteroid();
 
+    virtual void setMovable(bool movable);
+    virtual bool isMovable() { return is_movable; }
+
     virtual void drawOnRadar(sp::RenderTarget& renderer, glm::vec2 position, float scale, float rotation, bool long_range) override;
     virtual void collide(Collisionable* target, float force) override;
     virtual float getAvoidSize() override;
 
     virtual string getExportLineStart() override { return "Asteroid()"; }
+private:
+    bool is_movable;
 };
 
 class VisualAsteroid : public AbstractAsteroid

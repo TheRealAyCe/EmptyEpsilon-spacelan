@@ -91,6 +91,11 @@ Asteroid::Asteroid()
     ensureIsInAvoidList(this);
 }
 
+void Asteroid::setMovable(bool movable)
+{
+    is_movable = movable;
+}
+
 float Asteroid::getAvoidSize()
 {
     // orig: size=110 to 130, avoid=300
