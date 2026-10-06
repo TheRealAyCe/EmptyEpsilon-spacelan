@@ -1468,6 +1468,16 @@ void SpaceShip::executeJump(float distance)
     addHeat(SYS_JumpDrive, jump_drive_heat_per_jump);
 }
 
+bool SpaceShip::canBeTargetedBy(P<SpaceObject> other)
+{
+    if (docking_state == EDockingState::DS_Docked && docked_style == DockStyle::Internal)
+    {
+        return false;
+    }
+
+    return true;
+}
+
 DockStyle SpaceShip::canBeDockedBy(P<SpaceObject> obj)
 {
     if (isEnemy(obj) || !ship_template)

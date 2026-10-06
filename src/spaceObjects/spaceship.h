@@ -224,6 +224,8 @@ public:
     P<SpaceObject> docking_target; //Server only
     glm::vec2 docking_offset{0, 0}; //Server only
 
+    virtual bool canBeTargetedBy(P<SpaceObject> other) override;
+
     float missile_resupply_delay = missile_resupply_time;
     bool auto_reload_tube_enabled;
 
